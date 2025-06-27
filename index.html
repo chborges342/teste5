@@ -249,6 +249,7 @@
         .grid-header, .grid-cell {
             padding: 12px;
             background-color: white;
+            min-height: 80px;
         }
         
         .grid-header {
@@ -424,7 +425,7 @@
                         </tr>
                     </thead>
                     <tbody id="professores-lista">
-                        <!-- Professores serão carregados aqui -->
+                        <tr><td colspan="4" class="loading">Carregando professores...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -464,7 +465,7 @@
                         </tr>
                     </thead>
                     <tbody id="disciplinas-lista">
-                        <!-- Disciplinas serão carregadas aqui -->
+                        <tr><td colspan="4" class="loading">Carregando disciplinas...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -514,7 +515,7 @@
                         </tr>
                     </thead>
                     <tbody id="turmas-lista">
-                        <!-- Turmas serão carregadas aqui -->
+                        <tr><td colspan="4" class="loading">Carregando turmas...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -534,7 +535,7 @@
                     </div>
                     <div class="form-group">
                         <label for="sala-capacidade">Capacidade</label>
-                        <input type="number" id="sala-capacidade" placeholder="Ex: 30">
+        <input type="number" id="sala-capacidade" placeholder="Ex: 30">
                     </div>
                     <div class="form-group">
                         <label for="sala-tipo">Tipo de Sala</label>
@@ -558,7 +559,7 @@
                         </tr>
                     </thead>
                     <tbody id="salas-lista">
-                        <!-- Salas serão carregadas aqui -->
+                        <tr><td colspan="4" class="loading">Carregando salas...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -575,7 +576,7 @@
                     <div class="form-group">
                         <label for="horario-turma">Selecione a Turma</label>
                         <select id="horario-turma">
-                            <!-- Turmas serão carregadas aqui -->
+                            <option value="">Carregando turmas...</option>
                         </select>
                     </div>
                 </div>
@@ -584,19 +585,19 @@
                     <div class="form-group">
                         <label for="horario-disciplina">Disciplina</label>
                         <select id="horario-disciplina">
-                            <!-- Disciplinas serão carregadas aqui -->
+                            <option value="">Carregando disciplinas...</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="horario-professor">Professor</label>
                         <select id="horario-professor">
-                            <!-- Professores serão carregados aqui -->
+                            <option value="">Carregando professores...</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="horario-sala">Sala</label>
                         <select id="horario-sala">
-                            <!-- Salas serão carregadas aqui -->
+                            <option value="">Carregando salas...</option>
                         </select>
                     </div>
                 </div>
@@ -616,7 +617,20 @@
                     <div class="form-group">
                         <label for="horario-inicio">Horário de Início</label>
                         <select id="horario-inicio">
-                            <!-- Horários serão carregados dinamicamente -->
+                            <optgroup label="Horários Matutinos">
+                                <option value="07:30">07:30</option>
+                                <option value="08:20">08:20</option>
+                                <option value="09:10">09:10</option>
+                                <option value="10:00">10:00</option>
+                                <option value="10:50">10:50</option>
+                                <option value="11:40">11:40</option>
+                            </optgroup>
+                            <optgroup label="Horários Noturnos">
+                                <option value="18:40">18:40</option>
+                                <option value="19:30">19:30</option>
+                                <option value="20:20">20:20</option>
+                                <option value="21:10">21:10</option>
+                            </optgroup>
                         </select>
                     </div>
                     <div class="form-group">
@@ -633,7 +647,7 @@
                 
                 <h3 style="margin-top: 30px;">Grade de Horários</h3>
                 <div id="schedule-container">
-                    <!-- Grade de horários será gerada aqui -->
+                    <p>Selecione uma turma para ver a grade de horários</p>
                 </div>
             </div>
         </div>
@@ -656,13 +670,13 @@
                     <div class="form-group" id="print-turma-container">
                         <label for="print-turma">Selecione a Turma</label>
                         <select id="print-turma">
-                            <!-- Turmas serão carregadas aqui -->
+                            <option value="">Carregando turmas...</option>
                         </select>
                     </div>
                     <div class="form-group" id="print-professor-container" style="display: none;">
                         <label for="print-professor">Selecione o Professor</label>
                         <select id="print-professor">
-                            <!-- Professores serão carregados aqui -->
+                            <option value="">Carregando professores...</option>
                         </select>
                     </div>
                 </div>
@@ -670,7 +684,7 @@
                 <button id="generate-print" class="btn-success">Gerar para Impressão</button>
                 
                 <div class="print-section" id="print-output">
-                    <!-- Conteúdo para impressão será exibido aqui -->
+                    <p>Selecione as opções acima e clique em "Gerar para Impressão"</p>
                 </div>
             </div>
         </div>
@@ -712,28 +726,28 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Configurar navegação por abas
             tabLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
+                link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    const targetTab = link.getAttribute('data-tab');
+                    const targetTab = this.getAttribute('data-tab');
                     
                     // Atualizar aba ativa
                     tabLinks.forEach(l => l.classList.remove('active'));
-                    link.classList.add('active');
+                    this.classList.add('active');
                     
                     // Mostrar conteúdo da aba
                     tabContents.forEach(content => {
                         content.classList.remove('active');
                         if (content.id === targetTab) {
                             content.classList.add('active');
+                            
+                            // Carregar dados específicos da aba
+                            if (targetTab === 'horarios') {
+                                loadHorariosData();
+                            } else if (targetTab === 'imprimir') {
+                                loadPrintData();
+                            }
                         }
                     });
-                    
-                    // Carregar dados específicos da aba
-                    if (targetTab === 'horarios') {
-                        loadHorariosData();
-                    } else if (targetTab === 'imprimir') {
-                        loadPrintData();
-                    }
                 });
             });
 
@@ -753,13 +767,22 @@
             document.getElementById('generate-print').addEventListener('click', generatePrint);
             
             // Alternar entre turma e professor na impressão
-            document.getElementById('print-type').addEventListener('change', (e) => {
+            document.getElementById('print-type').addEventListener('change', function(e) {
                 if (e.target.value === 'turma') {
                     document.getElementById('print-turma-container').style.display = 'block';
                     document.getElementById('print-professor-container').style.display = 'none';
                 } else {
                     document.getElementById('print-turma-container').style.display = 'none';
                     document.getElementById('print-professor-container').style.display = 'block';
+                }
+            });
+            
+            // Atualizar grade quando uma turma for selecionada
+            document.getElementById('horario-turma').addEventListener('change', function() {
+                if (this.value) {
+                    generateScheduleGrid(this.value);
+                } else {
+                    document.getElementById('schedule-container').innerHTML = '<p>Selecione uma turma para ver a grade de horários</p>';
                 }
             });
         });
@@ -801,7 +824,7 @@
                     row.innerHTML = `
                         <td>${doc.id.substring(0, 8)}</td>
                         <td>${prof.nome}</td>
-                        <td>${prof.email}</td>
+                        <td>${prof.email || ''}</td>
                         <td class="actions">
                             <button class="btn-danger action-btn" data-id="${doc.id}">Excluir</button>
                         </td>
@@ -939,6 +962,9 @@
             });
         }
 
+        <script>
+        // ... (código anterior permanece igual)
+
         // Função para carregar dados para a aba de horários
         function loadHorariosData() {
             // Carregar turmas
@@ -988,33 +1014,9 @@
                     salaSelect.innerHTML += `<option value="${doc.id}">${sala.nome} (${sala.tipo})</option>`;
                 });
             });
-            
-            // Configurar horários
-            const horarioSelect = document.getElementById('horario-inicio');
-            horarioSelect.innerHTML = '';
-            
-            // Horários matutinos
-            const horariosMatutinos = [
-                '07:30', '08:20', '09:10', '10:00', '10:50', '11:40'
-            ];
-            
-            // Horários noturnos
-            const horariosNoturnos = [
-                '18:40', '19:30', '20:20', '21:10'
-            ];
-            
-            horarioSelect.innerHTML += '<optgroup label="Horários Matutinos">';
-            horariosMatutinos.forEach(hora => {
-                horarioSelect.innerHTML += `<option value="${hora}">${hora}</option>`;
-            });
-            
-            horarioSelect.innerHTML += '<optgroup label="Horários Noturnos">';
-            horariosNoturnos.forEach(hora => {
-                horarioSelect.innerHTML += `<option value="${hora}">${hora}</option>`;
-            });
         }
 
-              // Funções para adicionar entidades
+        // Funções para adicionar entidades
         function addProfessor() {
             const nome = document.getElementById('prof-nome').value;
             const email = document.getElementById('prof-email').value;
