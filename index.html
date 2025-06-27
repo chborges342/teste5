@@ -298,6 +298,20 @@
             font-size: 0.9rem;
         }
         
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--secondary);
+        }
+        
+        .error {
+            color: var(--accent);
+            padding: 10px;
+            background-color: #ffeceb;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
         @media print {
             nav, .print-actions, .card-header button {
                 display: none;
@@ -669,7 +683,7 @@
     </footer>
 
     <script>
-        // Configuração do Firebase
+        // Configuração do Firebase (substitua com suas credenciais)
         const firebaseConfig = {
             apiKey: "SUA_API_KEY",
             authDomain: "SEU_PROJETO.firebaseapp.com",
@@ -694,29 +708,58 @@
         const tabLinks = document.querySelectorAll('nav a');
         const tabContents = document.querySelectorAll('.tab-content');
         
-        // Navegação por abas
-        tabLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetTab = link.getAttribute('data-tab');
-                
-                // Atualizar aba ativa
-                tabLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                
-                // Mostrar conteúdo da aba
-                tabContents.forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === targetTab) {
-                        content.classList.add('active');
+        // Inicialização do sistema
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar navegação por abas
+            tabLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetTab = link.getAttribute('data-tab');
+                    
+                    // Atualizar aba ativa
+                    tabLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // Mostrar conteúdo da aba
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === targetTab) {
+                            content.classList.add('active');
+                        }
+                    });
+                    
+                    // Carregar dados específicos da aba
+                    if (targetTab === 'horarios') {
+                        loadHorariosData();
+                    } else if (targetTab === 'imprimir') {
+                        loadPrintData();
                     }
                 });
-                
-                // Carregar dados específicos da aba se necessário
-                if (targetTab === 'horarios') {
-                    loadHorariosData();
-                } else if (targetTab === 'imprimir') {
-                    loadPrintData();
+            });
+
+            // Carregar dados iniciais
+            loadCounts();
+            loadProfessores();
+            loadDisciplinas();
+            loadTurmas();
+            loadSalas();
+            
+            // Configurar eventos
+            document.getElementById('add-prof').addEventListener('click', addProfessor);
+            document.getElementById('add-disc').addEventListener('click', addDisciplina);
+            document.getElementById('add-turma').addEventListener('click', addTurma);
+            document.getElementById('add-sala').addEventListener('click', addSala);
+            document.getElementById('add-horario').addEventListener('click', addHorario);
+            document.getElementById('generate-print').addEventListener('click', generatePrint);
+            
+            // Alternar entre turma e professor na impressão
+            document.getElementById('print-type').addEventListener('change', (e) => {
+                if (e.target.value === 'turma') {
+                    document.getElementById('print-turma-container').style.display = 'block';
+                    document.getElementById('print-professor-container').style.display = 'none';
+                } else {
+                    document.getElementById('print-turma-container').style.display = 'none';
+                    document.getElementById('print-professor-container').style.display = 'block';
                 }
             });
         });
@@ -740,84 +783,703 @@
             });
         }
 
-        // Carregar contagens ao iniciar
-        loadCounts();
-
-        // Implementação completa das operações CRUD para todas as entidades
-        // (professores, disciplinas, turmas, salas, horários)
-        // com integração Firebase e tratamento de conflitos de horários
-
-        // Implementação da grade de horários interativa
-        // Implementação da geração de relatórios para impressão
-
-        // Este é um exemplo simplificado - em uma implementação real, cada função seria totalmente desenvolvida
-        document.getElementById('add-prof').addEventListener('click', () => {
-            const nome = document.getElementById('prof-nome').value;
-            const email = document.getElementById('prof-email').value;
+        function loadProfessores() {
+            const lista = document.getElementById('professores-lista');
+            lista.innerHTML = '<tr><td colspan="4" class="loading">Carregando professores...</td></tr>';
             
-            if (nome) {
-                professoresRef.add({
-                    nome: nome,
-                    email: email
-                }).then(() => {
-                    alert('Professor adicionado com sucesso!');
-                    loadCounts();
+            professoresRef.get().then(snap => {
+                lista.innerHTML = '';
+                
+                if (snap.empty) {
+                    lista.innerHTML = '<tr><td colspan="4">Nenhum professor cadastrado</td></tr>';
+                    return;
+                }
+                
+                snap.forEach(doc => {
+                    const prof = doc.data();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${doc.id.substring(0, 8)}</td>
+                        <td>${prof.nome}</td>
+                        <td>${prof.email}</td>
+                        <td class="actions">
+                            <button class="btn-danger action-btn" data-id="${doc.id}">Excluir</button>
+                        </td>
+                    `;
+                    lista.appendChild(row);
                 });
-            }
-        });
+                
+                // Adicionar eventos de exclusão
+                document.querySelectorAll('#professores-lista .btn-danger').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.getAttribute('data-id');
+                        professoresRef.doc(id).delete().then(() => {
+                            loadProfessores();
+                            loadCounts();
+                        });
+                    });
+                });
+            });
+        }
+
+        function loadDisciplinas() {
+            const lista = document.getElementById('disciplinas-lista');
+            lista.innerHTML = '<tr><td colspan="4" class="loading">Carregando disciplinas...</td></tr>';
+            
+            disciplinasRef.get().then(snap => {
+                lista.innerHTML = '';
+                
+                if (snap.empty) {
+                    lista.innerHTML = '<tr><td colspan="4">Nenhuma disciplina cadastrada</td></tr>';
+                    return;
+                }
+                
+                snap.forEach(doc => {
+                    const disc = doc.data();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${disc.codigo}</td>
+                        <td>${disc.nome}</td>
+                        <td>${disc.cargaHoraria} horas</td>
+                        <td class="actions">
+                            <button class="btn-danger action-btn" data-id="${doc.id}">Excluir</button>
+                        </td>
+                    `;
+                    lista.appendChild(row);
+                });
+                
+                // Adicionar eventos de exclusão
+                document.querySelectorAll('#disciplinas-lista .btn-danger').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.getAttribute('data-id');
+                        disciplinasRef.doc(id).delete().then(() => {
+                            loadDisciplinas();
+                            loadCounts();
+                        });
+                    });
+                });
+            });
+        }
+
+        function loadTurmas() {
+            const lista = document.getElementById('turmas-lista');
+            lista.innerHTML = '<tr><td colspan="4" class="loading">Carregando turmas...</td></tr>';
+            
+            turmasRef.get().then(snap => {
+                lista.innerHTML = '';
+                
+                if (snap.empty) {
+                    lista.innerHTML = '<tr><td colspan="4">Nenhuma turma cadastrada</td></tr>';
+                    return;
+                }
+                
+                snap.forEach(doc => {
+                    const turma = doc.data();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${turma.codigo}</td>
+                        <td>${turma.semestre}º Semestre</td>
+                        <td>${turma.turno === 'matutino' ? 'Matutino' : 'Noturno'}</td>
+                        <td class="actions">
+                            <button class="btn-danger action-btn" data-id="${doc.id}">Excluir</button>
+                        </td>
+                    `;
+                    lista.appendChild(row);
+                });
+                
+                // Adicionar eventos de exclusão
+                document.querySelectorAll('#turmas-lista .btn-danger').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.getAttribute('data-id');
+                        turmasRef.doc(id).delete().then(() => {
+                            loadTurmas();
+                            loadCounts();
+                        });
+                    });
+                });
+            });
+        }
+
+        function loadSalas() {
+            const lista = document.getElementById('salas-lista');
+            lista.innerHTML = '<tr><td colspan="4" class="loading">Carregando salas...</td></tr>';
+            
+            salasRef.get().then(snap => {
+                lista.innerHTML = '';
+                
+                if (snap.empty) {
+                    lista.innerHTML = '<tr><td colspan="4">Nenhuma sala cadastrada</td></tr>';
+                    return;
+                }
+                
+                snap.forEach(doc => {
+                    const sala = doc.data();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${sala.nome}</td>
+                        <td>${sala.capacidade} lugares</td>
+                        <td>${sala.tipo}</td>
+                        <td class="actions">
+                            <button class="btn-danger action-btn" data-id="${doc.id}">Excluir</button>
+                        </td>
+                    `;
+                    lista.appendChild(row);
+                });
+                
+                // Adicionar eventos de exclusão
+                document.querySelectorAll('#salas-lista .btn-danger').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.getAttribute('data-id');
+                        salasRef.doc(id).delete().then(() => {
+                            loadSalas();
+                            loadCounts();
+                        });
+                    });
+                });
+            });
+        }
 
         // Função para carregar dados para a aba de horários
         function loadHorariosData() {
-            // Carregar turmas, disciplinas, professores e salas nos selects
-            // Implementação completa seria similar ao exemplo acima
+            // Carregar turmas
+            const turmaSelect = document.getElementById('horario-turma');
+            turmaSelect.innerHTML = '<option value="">Carregando turmas...</option>';
+            
+            turmasRef.get().then(snap => {
+                turmaSelect.innerHTML = '<option value="">Selecione uma turma</option>';
+                snap.forEach(doc => {
+                    const turma = doc.data();
+                    turmaSelect.innerHTML += `<option value="${doc.id}">${turma.codigo} - ${turma.semestre}º Semestre (${turma.turno})</option>`;
+                });
+            });
+            
+            // Carregar disciplinas
+            const discSelect = document.getElementById('horario-disciplina');
+            discSelect.innerHTML = '<option value="">Carregando disciplinas...</option>';
+            
+            disciplinasRef.get().then(snap => {
+                discSelect.innerHTML = '<option value="">Selecione uma disciplina</option>';
+                snap.forEach(doc => {
+                    const disc = doc.data();
+                    discSelect.innerHTML += `<option value="${doc.id}">${disc.codigo} - ${disc.nome}</option>`;
+                });
+            });
+            
+            // Carregar professores
+            const profSelect = document.getElementById('horario-professor');
+            profSelect.innerHTML = '<option value="">Carregando professores...</option>';
+            
+            professoresRef.get().then(snap => {
+                profSelect.innerHTML = '<option value="">Selecione um professor</option>';
+                snap.forEach(doc => {
+                    const prof = doc.data();
+                    profSelect.innerHTML += `<option value="${doc.id}">${prof.nome}</option>`;
+                });
+            });
+            
+            // Carregar salas
+            const salaSelect = document.getElementById('horario-sala');
+            salaSelect.innerHTML = '<option value="">Carregando salas...</option>';
+            
+            salasRef.get().then(snap => {
+                salaSelect.innerHTML = '<option value="">Selecione uma sala</option>';
+                snap.forEach(doc => {
+                    const sala = doc.data();
+                    salaSelect.innerHTML += `<option value="${doc.id}">${sala.nome} (${sala.tipo})</option>`;
+                });
+            });
+            
+            // Configurar horários
+            const horarioSelect = document.getElementById('horario-inicio');
+            horarioSelect.innerHTML = '';
+            
+            // Horários matutinos
+            const horariosMatutinos = [
+                '07:30', '08:20', '09:10', '10:00', '10:50', '11:40'
+            ];
+            
+            // Horários noturnos
+            const horariosNoturnos = [
+                '18:40', '19:30', '20:20', '21:10'
+            ];
+            
+            horarioSelect.innerHTML += '<optgroup label="Horários Matutinos">';
+            horariosMatutinos.forEach(hora => {
+                horarioSelect.innerHTML += `<option value="${hora}">${hora}</option>`;
+            });
+            
+            horarioSelect.innerHTML += '<optgroup label="Horários Noturnos">';
+            horariosNoturnos.forEach(hora => {
+                horarioSelect.innerHTML += `<option value="${hora}">${hora}</option>`;
+            });
+        }
+
+                // Funções para adicionar entidades
+        function addProfessor() {
+            const nome = document.getElementById('prof-nome').value;
+            const email = document.getElementById('prof-email').value;
+            
+            if (!nome) {
+                alert('Por favor, preencha o nome do professor');
+                return;
+            }
+            
+            professoresRef.add({
+                nome: nome,
+                email: email
+            }).then(() => {
+                alert('Professor adicionado com sucesso!');
+                document.getElementById('prof-nome').value = '';
+                document.getElementById('prof-email').value = '';
+                loadProfessores();
+                loadCounts();
+            }).catch(error => {
+                alert('Erro ao adicionar professor: ' + error.message);
+            });
+        }
+
+        function addDisciplina() {
+            const codigo = document.getElementById('disc-codigo').value;
+            const nome = document.getElementById('disc-nome').value;
+            const cargaHoraria = document.getElementById('disc-ch').value;
+            
+            if (!codigo || !nome || !cargaHoraria) {
+                alert('Por favor, preencha todos os campos');
+                return;
+            }
+            
+            disciplinasRef.add({
+                codigo: codigo,
+                nome: nome,
+                cargaHoraria: cargaHoraria
+            }).then(() => {
+                alert('Disciplina adicionada com sucesso!');
+                document.getElementById('disc-codigo').value = '';
+                document.getElementById('disc-nome').value = '';
+                document.getElementById('disc-ch').value = '';
+                loadDisciplinas();
+                loadCounts();
+            }).catch(error => {
+                alert('Erro ao adicionar disciplina: ' + error.message);
+            });
+        }
+
+        function addTurma() {
+            const codigo = document.getElementById('turma-codigo').value;
+            const semestre = document.getElementById('turma-semestre').value;
+            const turno = document.getElementById('turma-turno').value;
+            
+            if (!codigo || !semestre || !turno) {
+                alert('Por favor, preencha todos os campos');
+                return;
+            }
+            
+            // Validação do semestre conforme turno
+            const maxSemestre = turno === 'matutino' ? 9 : 10;
+            if (semestre < 1 || semestre > maxSemestre) {
+                alert(`Semestre inválido! Para o turno ${turno}, os semestres devem ser entre 1 e ${maxSemestre}`);
+                return;
+            }
+            
+            turmasRef.add({
+                codigo: codigo,
+                semestre: parseInt(semestre),
+                turno: turno
+            }).then(() => {
+                alert('Turma adicionada com sucesso!');
+                document.getElementById('turma-semestre').value = '';
+                loadTurmas();
+                loadCounts();
+            }).catch(error => {
+                alert('Erro ao adicionar turma: ' + error.message);
+            });
+        }
+
+        function addSala() {
+            const nome = document.getElementById('sala-nome').value;
+            const capacidade = document.getElementById('sala-capacidade').value;
+            const tipo = document.getElementById('sala-tipo').value;
+            
+            if (!nome || !capacidade || !tipo) {
+                alert('Por favor, preencha todos os campos');
+                return;
+            }
+            
+            salasRef.add({
+                nome: nome,
+                capacidade: parseInt(capacidade),
+                tipo: tipo
+            }).then(() => {
+                alert('Sala adicionada com sucesso!');
+                document.getElementById('sala-nome').value = '';
+                document.getElementById('sala-capacidade').value = '';
+                loadSalas();
+                loadCounts();
+            }).catch(error => {
+                alert('Erro ao adicionar sala: ' + error.message);
+            });
+        }
+
+        // Função para adicionar horário com verificação de conflito
+        async function addHorario() {
+            const turmaId = document.getElementById('horario-turma').value;
+            const disciplinaId = document.getElementById('horario-disciplina').value;
+            const professorId = document.getElementById('horario-professor').value;
+            const salaId = document.getElementById('horario-sala').value;
+            const dia = document.getElementById('horario-dia').value;
+            const inicio = document.getElementById('horario-inicio').value;
+            const duracao = parseInt(document.getElementById('horario-duracao').value);
+            
+            if (!turmaId || !disciplinaId || !professorId || !salaId || !dia || !inicio) {
+                alert('Por favor, preencha todos os campos');
+                return;
+            }
+            
+            // Converter horário para minutos para facilitar comparação
+            const [hora, minuto] = inicio.split(':').map(Number);
+            const inicioMinutos = hora * 60 + minuto;
+            const fimMinutos = inicioMinutos + (duracao * 50); // Cada período tem 50 minutos
+            
+            // Verificar conflitos
+            const conflictAlert = document.getElementById('conflict-alert');
+            conflictAlert.style.display = 'none';
+            
+            const hasConflict = await checkScheduleConflict(professorId, salaId, dia, inicioMinutos, fimMinutos);
+            
+            if (hasConflict) {
+                conflictAlert.innerHTML = 'Conflito de horário detectado! Não foi possível adicionar.';
+                conflictAlert.style.display = 'block';
+                return;
+            }
+            
+            // Adicionar horário se não houver conflito
+            horariosRef.add({
+                turmaId: turmaId,
+                disciplinaId: disciplinaId,
+                professorId: professorId,
+                salaId: salaId,
+                dia: dia,
+                inicio: inicio,
+                duracao: duracao,
+                inicioMinutos: inicioMinutos,
+                fimMinutos: fimMinutos
+            }).then(() => {
+                alert('Horário adicionado com sucesso!');
+                generateScheduleGrid(turmaId); // Atualizar grade de horários
+            }).catch(error => {
+                alert('Erro ao adicionar horário: ' + error.message);
+            });
         }
 
         // Função para verificar conflitos de horário
-        async function checkScheduleConflict(professorId, salaId, dia, inicio, duracao) {
-            // Implementação para verificar se há conflito de horário
-            return false; // Simulação
+        async function checkScheduleConflict(professorId, salaId, dia, inicioMinutos, fimMinutos) {
+            let hasConflict = false;
+            
+            // Verificar conflitos para o professor
+            const professorSnap = await horariosRef
+                .where('professorId', '==', professorId)
+                .where('dia', '==', dia)
+                .get();
+            
+            professorSnap.forEach(doc => {
+                const horario = doc.data();
+                if ((inicioMinutos >= horario.inicioMinutos && inicioMinutos < horario.fimMinutos) ||
+                    (fimMinutos > horario.inicioMinutos && fimMinutos <= horario.fimMinutos) ||
+                    (inicioMinutos <= horario.inicioMinutos && fimMinutos >= horario.fimMinutos)) {
+                    hasConflict = true;
+                }
+            });
+            
+            // Verificar conflitos para a sala
+            const salaSnap = await horariosRef
+                .where('salaId', '==', salaId)
+                .where('dia', '==', dia)
+                .get();
+            
+            salaSnap.forEach(doc => {
+                const horario = doc.data();
+                if ((inicioMinutos >= horario.inicioMinutos && inicioMinutos < horario.fimMinutos) ||
+                    (fimMinutos > horario.inicioMinutos && fimMinutos <= horario.fimMinutos) ||
+                    (inicioMinutos <= horario.inicioMinutos && fimMinutos >= horario.fimMinutos)) {
+                    hasConflict = true;
+                }
+            });
+            
+            return hasConflict;
         }
 
         // Função para gerar grade de horários
-        function generateScheduleGrid(turmaId) {
-            // Implementação para gerar grade visual de horários
+        async function generateScheduleGrid(turmaId) {
+            const container = document.getElementById('schedule-container');
+            container.innerHTML = '<div class="loading">Carregando grade de horários...</div>';
+            
+            // Obter todos os horários para esta turma
+            const horariosSnap = await horariosRef.where('turmaId', '==', turmaId).get();
+            
+            if (horariosSnap.empty) {
+                container.innerHTML = '<p>Nenhum horário cadastrado para esta turma.</p>';
+                return;
+            }
+            
+            // Obter informações da turma
+            const turmaDoc = await turmasRef.doc(turmaId).get();
+            const turma = turmaDoc.data();
+            
+            // Definir horários baseados no turno
+            const horarios = turma.turno === 'matutino' ? 
+                ['07:30', '08:20', '09:10', '10:00', '10:50', '11:40'] : 
+                ['18:40', '19:30', '20:20', '21:10'];
+            
+            // Dias da semana
+            const dias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+            const diasNomes = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            
+            // Criar estrutura da grade
+            let gridHTML = `
+                <div class="schedule-grid">
+                    <div class="grid-header"></div> <!-- Canto superior esquerdo -->
+            `;
+            
+            // Adicionar cabeçalhos dos dias
+            diasNomes.forEach(dia => {
+                gridHTML += `<div class="grid-header">${dia}</div>`;
+            });
+            
+            // Preencher grade com horários
+            horarios.forEach((hora, index) => {
+                gridHTML += `<div class="grid-header">${hora}</div>`;
+                
+                // Adicionar células para cada dia
+                dias.forEach(dia => {
+                    const horariosDia = [];
+                    
+                    // Verificar se há horário neste dia e hora
+                    horariosSnap.forEach(doc => {
+                        const horario = doc.data();
+                        if (horario.dia === dia && horario.inicio === hora) {
+                            // Obter detalhes da disciplina
+                            disciplinasRef.doc(horario.disciplinaId).get().then(discDoc => {
+                                if (discDoc.exists) {
+                                    horario.disciplina = discDoc.data();
+                                }
+                            });
+                            
+                            // Obter detalhes do professor
+                            professoresRef.doc(horario.professorId).get().then(profDoc => {
+                                if (profDoc.exists) {
+                                    horario.professor = profDoc.data();
+                                }
+                            });
+                            
+                            // Obter detalhes da sala
+                            salasRef.doc(horario.salaId).get().then(salaDoc => {
+                                if (salaDoc.exists) {
+                                    horario.sala = salaDoc.data();
+                                }
+                            });
+                            
+                            horariosDia.push(horario);
+                        }
+                    });
+                    
+                    if (horariosDia.length > 0) {
+                        let cellContent = '';
+                        horariosDia.forEach(h => {
+                            cellContent += `
+                                <div class="schedule-entry">
+                                    <strong>${h.disciplina?.codigo || '???'}</strong> - ${h.disciplina?.nome || 'Disciplina não encontrada'}
+                                    <div>Prof: ${h.professor?.nome || '???'}</div>
+                                    <div>Sala: ${h.sala?.nome || '???'}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        gridHTML += `<div class="grid-cell">${cellContent}</div>`;
+                    } else {
+                        gridHTML += `<div class="grid-cell"></div>`;
+                    }
+                });
+            });
+            
+            gridHTML += '</div>'; // Fechar schedule-grid
+            container.innerHTML = gridHTML;
         }
 
-        // Implementação da geração de relatórios para impressão
-        document.getElementById('generate-print').addEventListener('click', () => {
+        // Função para carregar dados para impressão
+        function loadPrintData() {
+            // Carregar turmas para impressão
+            const printTurmaSelect = document.getElementById('print-turma');
+            printTurmaSelect.innerHTML = '<option value="">Carregando turmas...</option>';
+            
+            turmasRef.get().then(snap => {
+                printTurmaSelect.innerHTML = '<option value="">Selecione uma turma</option>';
+                snap.forEach(doc => {
+                    const turma = doc.data();
+                    printTurmaSelect.innerHTML += `<option value="${doc.id}">${turma.codigo} - ${turma.semestre}º Semestre (${turma.turno})</option>`;
+                });
+            });
+            
+            // Carregar professores para impressão
+            const printProfSelect = document.getElementById('print-professor');
+            printProfSelect.innerHTML = '<option value="">Carregando professores...</option>';
+            
+            professoresRef.get().then(snap => {
+                printProfSelect.innerHTML = '<option value="">Selecione um professor</option>';
+                snap.forEach(doc => {
+                    const prof = doc.data();
+                    printProfSelect.innerHTML += `<option value="${doc.id}">${prof.nome}</option>`;
+                });
+            });
+        }
+
+        // Função para gerar relatório para impressão
+        async function generatePrint() {
             const printType = document.getElementById('print-type').value;
             const printOutput = document.getElementById('print-output');
+            printOutput.innerHTML = '<div class="loading">Gerando relatório...</div>';
             
             if (printType === 'turma') {
                 const turmaId = document.getElementById('print-turma').value;
-                printOutput.innerHTML = `<h3>Horário da Turma ${turmaId}</h3>`;
-                // Gerar grade de horários para impressão
+                if (!turmaId) {
+                    printOutput.innerHTML = '<div class="error">Selecione uma turma</div>';
+                    return;
+                }
+                
+                // Obter informações da turma
+                const turmaDoc = await turmasRef.doc(turmaId).get();
+                const turma = turmaDoc.data();
+                
+                // Obter horários da turma
+                const horariosSnap = await horariosRef.where('turmaId', '==', turmaId).get();
+                
+                // Criar conteúdo para impressão
+                let printHTML = `
+                    <h3>Horário da Turma: ${turma.codigo}</h3>
+                    <p>Semestre: ${turma.semestre}º | Turno: ${turma.turno === 'matutino' ? 'Matutino' : 'Noturno'}</p>
+                    <div class="schedule-grid">
+                        <div class="grid-header"></div>
+                        <div class="grid-header">Segunda</div>
+                        <div class="grid-header">Terça</div>
+                        <div class="grid-header">Quarta</div>
+                        <div class="grid-header">Quinta</div>
+                        <div class="grid-header">Sexta</div>
+                        <div class="grid-header">Sábado</div>
+                `;
+                
+                // Definir horários baseados no turno
+                const horarios = turma.turno === 'matutino' ? 
+                    ['07:30', '08:20', '09:10', '10:00', '10:50', '11:40'] : 
+                    ['18:40', '19:30', '20:20', '21:10'];
+                
+                // Preencher grade de impressão
+                for (const hora of horarios) {
+                    printHTML += `<div class="grid-header">${hora}</div>`;
+                    
+                    for (const dia of ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado']) {
+                        let cellContent = '';
+                        
+                        horariosSnap.forEach(doc => {
+                            const horario = doc.data();
+                            if (horario.dia === dia && horario.inicio === hora) {
+                                // Obter detalhes da disciplina
+                                const discDoc = disciplinasRef.doc(horario.disciplinaId);
+                                discDoc.get().then(discData => {
+                                    if (discData.exists) {
+                                        horario.disciplina = discData.data();
+                                    }
+                                });
+                                
+                                cellContent += `
+                                    <div class="schedule-entry">
+                                        <strong>${horario.disciplina?.codigo || '???'}</strong>
+                                        <div>${horario.disciplina?.nome || 'Disciplina não encontrada'}</div>
+                                        <div>${horario.sala?.nome || '???'}</div>
+                                    </div>
+                                `;
+                            }
+                        });
+                        
+                        printHTML += `<div class="grid-cell">${cellContent}</div>`;
+                    }
+                }
+                
+                printHTML += '</div>'; // Fechar schedule-grid
+                printHTML += `<button onclick="window.print()" class="btn-success" style="margin-top: 20px;">Imprimir Horário</button>`;
+                printOutput.innerHTML = printHTML;
             } else {
                 const professorId = document.getElementById('print-professor').value;
-                printOutput.innerHTML = `<h3>Horário do Professor ${professorId}</h3>`;
-                // Gerar grade de horários do professor para impressão
+                if (!professorId) {
+                    printOutput.innerHTML = '<div class="error">Selecione um professor</div>';
+                    return;
+                }
+                
+                // Obter informações do professor
+                const professorDoc = await professoresRef.doc(professorId).get();
+                const professor = professorDoc.data();
+                
+                // Obter horários do professor
+                const horariosSnap = await horariosRef.where('professorId', '==', professorId).get();
+                
+                // Criar conteúdo para impressão
+                let printHTML = `
+                    <h3>Horário do Professor: ${professor.nome}</h3>
+                    <div class="schedule-grid">
+                        <div class="grid-header"></div>
+                        <div class="grid-header">Segunda</div>
+                        <div class="grid-header">Terça</div>
+                        <div class="grid-header">Quarta</div>
+                        <div class="grid-header">Quinta</div>
+                        <div class="grid-header">Sexta</div>
+                        <div class="grid-header">Sábado</div>
+                `;
+                
+                // Definir todos os horários possíveis
+                const horarios = ['07:30', '08:20', '09:10', '10:00', '10:50', '11:40', '18:40', '19:30', '20:20', '21:10'];
+                
+                // Preencher grade de impressão
+                for (const hora of horarios) {
+                    printHTML += `<div class="grid-header">${hora}</div>`;
+                    
+                    for (const dia of ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado']) {
+                        let cellContent = '';
+                        
+                        horariosSnap.forEach(doc => {
+                            const horario = doc.data();
+                            if (horario.dia === dia && horario.inicio === hora) {
+                                // Obter detalhes da disciplina
+                                const discDoc = disciplinasRef.doc(horario.disciplinaId);
+                                discDoc.get().then(discData => {
+                                    if (discData.exists) {
+                                        horario.disciplina = discData.data();
+                                    }
+                                });
+                                
+                                // Obter detalhes da turma
+                                const turmaDoc = turmasRef.doc(horario.turmaId);
+                                turmaDoc.get().then(turmaData => {
+                                    if (turmaData.exists) {
+                                        horario.turma = turmaData.data();
+                                    }
+                                });
+                                
+                                cellContent += `
+                                    <div class="schedule-entry">
+                                        <strong>${horario.disciplina?.codigo || '???'}</strong>
+                                        <div>${horario.turma?.codigo || '???'} - ${horario.sala?.nome || '???'}</div>
+                                    </div>
+                                `;
+                            }
+                        });
+                        
+                        printHTML += `<div class="grid-cell">${cellContent}</div>`;
+                    }
+                }
+                
+                printHTML += '</div>'; // Fechar schedule-grid
+                printHTML += `<button onclick="window.print()" class="btn-success" style="margin-top: 20px;">Imprimir Horário</button>`;
+                printOutput.innerHTML = printHTML;
             }
-            
-            // Adicionar botão de impressão
-            printOutput.innerHTML += `<button onclick="window.print()" class="btn-success">Imprimir</button>`;
-        });
-
-        // Alternar entre turma e professor na impressão
-        document.getElementById('print-type').addEventListener('change', (e) => {
-            if (e.target.value === 'turma') {
-                document.getElementById('print-turma-container').style.display = 'block';
-                document.getElementById('print-professor-container').style.display = 'none';
-            } else {
-                document.getElementById('print-turma-container').style.display = 'none';
-                document.getElementById('print-professor-container').style.display = 'block';
-            }
-        });
-
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', () => {
-            // Carregar dados iniciais
-            // Implementação completa carregaria todas as listas
-        });
+        }
     </script>
 </body>
 </html>
