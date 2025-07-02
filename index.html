@@ -1,642 +1,484 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Horários - Ciências Econômicas UESC</title>
-    <style>
-        /* ===== style.css ===== */
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --accent: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #34495e;
-            --success: #2ecc71;
-            --warning: #f39c12;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f7fa;
-            color: var(--dark);
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 20px 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .logo h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-        
-        .logo-img {
-            width: 50px;
-            height: 50px;
-            background-color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: var(--primary);
-            font-size: 1.2rem;
-        }
-        
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 15px;
-        }
-        
-        nav a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            transition: all 0.3s;
-            font-weight: 500;
-            display: block;
-        }
-        
-        nav a:hover, nav a.active {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-        }
-        
-        .card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            padding: 25px;
-            margin-bottom: 25px;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-        }
-        
-        .card-header {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .card-title {
-            color: var(--primary);
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-        
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .form-group {
-            flex: 1;
-            min-width: 250px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--dark);
-        }
-        
-        input, select, button {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-        
-        input:focus, select:focus {
-            border-color: var(--secondary);
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-            outline: none;
-        }
-        
-        button {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-            margin-top: 10px;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-        
-        button:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-        
-        .btn-danger {
-            background: var(--accent);
-        }
-        
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-        
-        .btn-success {
-            background: var(--success);
-        }
-        
-        .btn-success:hover {
-            background: #27ae60;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        
-        th {
-            background-color: var(--primary);
-            color: white;
-            font-weight: 500;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-        
-        tr:hover {
-            background-color: #e3f2fd;
-        }
-        
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .action-btn {
-            padding: 8px 12px;
-            font-size: 0.9rem;
-            width: auto;
-            border-radius: 4px;
-        }
-        
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 20px;
-        }
-        
-        .tab {
-            padding: 12px 20px;
-            cursor: pointer;
-            background: #f1f1f1;
-            border: 1px solid #ddd;
-            border-bottom: none;
-            border-radius: 5px 5px 0 0;
-            margin-right: 5px;
-        }
-        
-        .tab.active {
-            background: white;
-            border-bottom: 1px solid white;
-            margin-bottom: -1px;
-            font-weight: 500;
-        }
-        
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.5s;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: 100px repeat(6, 1fr);
-            gap: 1px;
-            background-color: #ddd;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .grid-header, .grid-cell {
-            padding: 15px;
-            background-color: white;
-            min-height: 100px;
-        }
-        
-        .grid-header {
-            font-weight: 600;
-            text-align: center;
-            background-color: #f8f9fa;
-        }
-        
-        .conflict {
-            background-color: #ffeceb;
-            border: 1px solid var(--accent);
-        }
-        
-        .print-section {
-            background-color: white;
-            padding: 30px;
-            margin-top: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .print-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 25px;
-            margin-top: 50px;
-            color: #7f8c8d;
-            border-top: 1px solid #eee;
-            background: #f8f9fa;
-        }
-        
-        .time-slot {
-            font-size: 0.85rem;
-            margin-bottom: 5px;
-            color: #666;
-        }
-        
-        .schedule-entry {
-            background-color: #e3f2fd;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            border-left: 3px solid var(--secondary);
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 30px;
-            color: var(--secondary);
-            font-size: 1.1rem;
-        }
-        
-        .error {
-            color: var(--accent);
-            padding: 15px;
-            background-color: #ffeceb;
-            border-radius: 6px;
-            margin-top: 15px;
-            border-left: 3px solid var(--accent);
-        }
-        
-        .system-info {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .info-card {
-            flex: 1;
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-        }
-        
-        .info-card h3 {
-            color: var(--primary);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .info-card ul {
-            padding-left: 20px;
-        }
-        
-        .info-card li {
-            margin-bottom: 8px;
-            line-height: 1.5;
-        }
-        
-        @media (max-width: 992px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 15px;
-            }
-            
-            nav ul {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .form-row {
-                flex-direction: column;
-            }
-            
-            .schedule-grid {
-                grid-template-columns: 80px repeat(6, 1fr);
-                font-size: 0.9rem;
-            }
-            
-            .grid-header, .grid-cell {
-                padding: 10px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .schedule-grid {
-                display: block;
-            }
-            
-            .grid-header {
-                display: none;
-            }
-            
-            .grid-cell {
-                border-bottom: 1px solid #eee;
-            }
-            
-            .system-info {
-                flex-direction: column;
-            }
-        }
-        
-        @media print {
-            nav, .print-actions, .card-header button, footer {
-                display: none;
-            }
-            
-            .container {
-                width: 100%;
-                max-width: 100%;
-                padding: 10px;
-            }
-            
-            .print-section {
-                box-shadow: none;
-                padding: 0;
-                margin-top: 0;
-            }
-            
-            .card {
-                box-shadow: none;
-                padding: 10px;
-            }
-        }
-    </style>
+    <title>Sistema de Gestão de Horários - Ciências Econômicas UESC</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <div class="container header-content">
-            <div class="logo">
-                <div class="logo-img">CE</div>
-                <h1>Gestão de Horários - Ciências Econômicas UESC</h1>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="#" class="active" data-tab="dashboard">Dashboard</a></li>
-                    <li><a href="#" data-tab="professores">Professores</a></li>
-                    <li><a href="#" data-tab="disciplinas">Disciplinas</a></li>
-                    <li><a href="#" data-tab="turmas">Turmas</a></li>
-                    <li><a href="#" data-tab="salas">Salas</a></li>
-                    <li><a href="#" data-tab="horarios">Horários</a></li>
-                    <li><a href="#" data-tab="imprimir">Imprimir</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <div class="container">
-        <!-- Dashboard -->
-        <div id="dashboard" class="tab-content active">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Visão Geral do Sistema</h2>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h1>Gestão de Horários</h1>
+                    <span class="subtitle">Ciências Econômicas - UESC</span>
                 </div>
-                <p>Bem-vindo ao sistema de gestão de horários do curso de Ciências Econômicas da UESC. Utilize o menu acima para navegar entre as seções.</p>
+                <nav class="nav-menu">
+                    <button class="nav-btn active" data-section="dashboard">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </button>
+                    <button class="nav-btn" data-section="cadastros">
+                        <i class="fas fa-plus-circle"></i>
+                        Cadastros
+                    </button>
+                    <button class="nav-btn" data-section="horarios">
+                        <i class="fas fa-clock"></i>
+                        Horários
+                    </button>
+                    <button class="nav-btn" data-section="impressao">
+                        <i class="fas fa-print"></i>
+                        Impressão
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-home"></i> Dashboard</h2>
+                    <p>Visão geral do sistema de gestão de horários</p>
+                </div>
                 
-                <div class="system-info">
-                    <div class="info-card">
-                        <h3>Turno Matutino</h3>
-                        <ul>
-                            <li>Segunda a Sexta: 7:30 às 12:30</li>
-                            <li>Períodos: 7:30-8:20, 8:20-9:10, 9:10-10:00, 10:00-10:50, 10:50-11:40, 11:40-12:30</li>
-                            <li>9 semestres</li>
-                        </ul>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-icon">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Professores</h3>
+                            <span class="count" id="professores-count">0</span>
+                            <p>cadastrados</p>
+                        </div>
                     </div>
                     
-                    <div class="info-card">
-                        <h3>Turno Noturno</h3>
-                        <ul>
-                            <li>Segunda a Sexta: 18:40 às 22:00</li>
-                            <li>Sábado: 7:30 às 12:30</li>
-                            <li>Períodos: 18:40-19:30, 19:30-20:20, 20:20-21:10, 21:10-22:00</li>
-                            <li>10 semestres</li>
-                        </ul>
+                    <div class="dashboard-card">
+                        <div class="card-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Disciplinas</h3>
+                            <span class="count" id="disciplinas-count">0</span>
+                            <p>cadastradas</p>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <div class="card">
-                            <h3>Resumo</h3>
-                            <p id="professor-count">Professores: 0</p>
-                            <p id="disciplina-count">Disciplinas: 0</p>
-                            <p id="turma-count">Turmas: 0</p>
-                            <p id="sala-count">Salas: 0</p>
+                    
+                    <div class="dashboard-card">
+                        <div class="card-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Turmas</h3>
+                            <span class="count" id="turmas-count">0</span>
+                            <p>cadastradas</p>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <div class="card-icon">
+                            <i class="fas fa-door-open"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Salas</h3>
+                            <span class="count" id="salas-count">0</span>
+                            <p>cadastradas</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Outras seções permanecem como no código anterior -->
-        <!-- Para economizar espaço, as outras seções foram resumidas -->
-        <div id="professores" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Gerenciamento de Professores</h2>
+
+                <div class="recent-activity">
+                    <h3><i class="fas fa-history"></i> Atividade Recente</h3>
+                    <div class="activity-list" id="activity-list">
+                        <p class="no-activity">Nenhuma atividade recente</p>
+                    </div>
                 </div>
-                <!-- Conteúdo da seção de professores -->
-                <div class="loading">Seção de Professores - Em construção</div>
-            </div>
-        </div>
-        
-        <div id="disciplinas" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Gerenciamento de Disciplinas</h2>
+            </section>
+
+            <!-- Cadastros Section -->
+            <section id="cadastros" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-plus-circle"></i> Cadastros</h2>
+                    <p>Gerencie professores, disciplinas, turmas e salas</p>
                 </div>
-                <!-- Conteúdo da seção de disciplinas -->
-                <div class="loading">Seção de Disciplinas - Em construção</div>
-            </div>
-        </div>
-        
-        <div id="turmas" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Gerenciamento de Turmas</h2>
+
+                <div class="cadastros-tabs">
+                    <button class="tab-btn active" data-tab="professores">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        Professores
+                    </button>
+                    <button class="tab-btn" data-tab="disciplinas">
+                        <i class="fas fa-book"></i>
+                        Disciplinas
+                    </button>
+                    <button class="tab-btn" data-tab="turmas">
+                        <i class="fas fa-users"></i>
+                        Turmas
+                    </button>
+                    <button class="tab-btn" data-tab="salas">
+                        <i class="fas fa-door-open"></i>
+                        Salas
+                    </button>
                 </div>
-                <!-- Conteúdo da seção de turmas -->
-                <div class="loading">Seção de Turmas - Em construção</div>
-            </div>
-        </div>
-        
-        <div id="salas" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Gerenciamento de Salas</h2>
+
+                <!-- Professores Tab -->
+                <div id="professores-tab" class="tab-content active">
+                    <div class="form-container">
+                        <h3>Cadastrar Professor</h3>
+                        <form id="professor-form" class="form">
+                            <div class="form-group">
+                                <label for="professor-nome">Nome Completo *</label>
+                                <input type="text" id="professor-nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="professor-email">E-mail</label>
+                                <input type="email" id="professor-email">
+                            </div>
+                            <div class="form-group">
+                                <label for="professor-disciplinas">Disciplinas que pode lecionar</label>
+                                <select id="professor-disciplinas" multiple>
+                                    <!-- Opções serão preenchidas dinamicamente -->
+                                </select>
+                                <small>Mantenha Ctrl pressionado para selecionar múltiplas disciplinas</small>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    Salvar Professor
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="clearForm('professor-form')">
+                                    <i class="fas fa-times"></i>
+                                    Limpar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="list-container">
+                        <h3>Professores Cadastrados</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-professores" placeholder="Buscar professor...">
+                        </div>
+                        <div id="professores-list" class="items-list">
+                            <!-- Lista será preenchida dinamicamente -->
+                        </div>
+                    </div>
                 </div>
-                <!-- Conteúdo da seção de salas -->
-                <div class="loading">Seção de Salas - Em construção</div>
-            </div>
-        </div>
-        
-        <div id="horarios" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Alocação de Horários</h2>
+
+                <!-- Disciplinas Tab -->
+                <div id="disciplinas-tab" class="tab-content">
+                    <div class="form-container">
+                        <h3>Cadastrar Disciplina</h3>
+                        <form id="disciplina-form" class="form">
+                            <div class="form-group">
+                                <label for="disciplina-nome">Nome da Disciplina *</label>
+                                <input type="text" id="disciplina-nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="disciplina-codigo">Código da Disciplina *</label>
+                                <input type="text" id="disciplina-codigo" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="disciplina-carga">Carga Horária (horas/aula) *</label>
+                                <input type="number" id="disciplina-carga" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="disciplina-turno">Turno *</label>
+                                <select id="disciplina-turno" required>
+                                    <option value="">Selecione o turno</option>
+                                    <option value="matutino">Matutino</option>
+                                    <option value="noturno">Noturno</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="disciplina-semestre">Semestre Curricular *</label>
+                                <select id="disciplina-semestre" required>
+                                    <option value="">Selecione o semestre</option>
+                                    <!-- Opções serão preenchidas dinamicamente baseadas no turno -->
+                                </select>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    Salvar Disciplina
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="clearForm('disciplina-form')">
+                                    <i class="fas fa-times"></i>
+                                    Limpar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="list-container">
+                        <h3>Disciplinas Cadastradas</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-disciplinas" placeholder="Buscar disciplina...">
+                        </div>
+                        <div id="disciplinas-list" class="items-list">
+                            <!-- Lista será preenchida dinamicamente -->
+                        </div>
+                    </div>
                 </div>
-                <!-- Conteúdo da seção de horários -->
-                <div class="loading">Seção de Horários - Em construção</div>
-            </div>
-        </div>
-        
-        <div id="imprimir" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Impressão de Horários</h2>
+
+                <!-- Turmas Tab -->
+                <div id="turmas-tab" class="tab-content">
+                    <div class="form-container">
+                        <h3>Cadastrar Turma</h3>
+                        <form id="turma-form" class="form">
+                            <div class="form-group">
+                                <label for="turma-turno">Turno *</label>
+                                <select id="turma-turno" required>
+                                    <option value="">Selecione o turno</option>
+                                    <option value="matutino">Matutino</option>
+                                    <option value="noturno">Noturno</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="turma-semestre">Semestre Curricular *</label>
+                                <select id="turma-semestre" required>
+                                    <option value="">Selecione o semestre</option>
+                                    <!-- Opções serão preenchidas dinamicamente baseadas no turno -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="turma-tipo">Tipo de Turma *</label>
+                                <select id="turma-tipo" required>
+                                    <option value="">Selecione o tipo</option>
+                                    <option value="regular">Regular</option>
+                                    <option value="extra">Extra</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="turma-codigo">Código da Turma *</label>
+                                <select id="turma-codigo" required>
+                                    <option value="">Selecione o código</option>
+                                    <!-- Opções serão preenchidas dinamicamente baseadas no turno e tipo -->
+                                </select>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    Salvar Turma
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="clearForm('turma-form')">
+                                    <i class="fas fa-times"></i>
+                                    Limpar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="list-container">
+                        <h3>Turmas Cadastradas</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-turmas" placeholder="Buscar turma...">
+                        </div>
+                        <div id="turmas-list" class="items-list">
+                            <!-- Lista será preenchida dinamicamente -->
+                        </div>
+                    </div>
                 </div>
-                <!-- Conteúdo da seção de impressão -->
-                <div class="loading">Seção de Impressão - Em construção</div>
-            </div>
+
+                <!-- Salas Tab -->
+                <div id="salas-tab" class="tab-content">
+                    <div class="form-container">
+                        <h3>Cadastrar Sala</h3>
+                        <form id="sala-form" class="form">
+                            <div class="form-group">
+                                <label for="sala-nome">Nome/Número da Sala *</label>
+                                <input type="text" id="sala-nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sala-capacidade">Capacidade</label>
+                                <input type="number" id="sala-capacidade" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="sala-recursos">Recursos</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" value="projetor"> Projetor
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" value="ar-condicionado"> Ar Condicionado
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" value="computador"> Computador
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" value="quadro-digital"> Quadro Digital
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    Salvar Sala
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="clearForm('sala-form')">
+                                    <i class="fas fa-times"></i>
+                                    Limpar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="list-container">
+                        <h3>Salas Cadastradas</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-salas" placeholder="Buscar sala...">
+                        </div>
+                        <div id="salas-list" class="items-list">
+                            <!-- Lista será preenchida dinamicamente -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Horários Section -->
+            <section id="horarios" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-clock"></i> Gestão de Horários</h2>
+                    <p>Configure os horários das disciplinas</p>
+                </div>
+
+                <div class="horarios-controls">
+                    <div class="control-group">
+                        <label for="horario-turma">Selecionar Turma:</label>
+                        <select id="horario-turma">
+                            <option value="">Selecione uma turma</option>
+                            <!-- Opções serão preenchidas dinamicamente -->
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <button class="btn btn-primary" id="btn-novo-horario">
+                            <i class="fas fa-plus"></i>
+                            Novo Horário
+                        </button>
+                        <button class="btn btn-secondary" id="btn-limpar-horarios">
+                            <i class="fas fa-trash"></i>
+                            Limpar Horários
+                        </button>
+                    </div>
+                </div>
+
+                <div id="horarios-grid" class="horarios-grid">
+                    <!-- Grade de horários será gerada dinamicamente -->
+                </div>
+
+                <!-- Modal para adicionar/editar horário -->
+                <div id="horario-modal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Configurar Horário</h3>
+                            <button class="modal-close">&times;</button>
+                        </div>
+                        <form id="horario-form" class="form">
+                            <div class="form-group">
+                                <label for="modal-disciplina">Disciplina *</label>
+                                <select id="modal-disciplina" required>
+                                    <option value="">Selecione a disciplina</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="modal-professor">Professor *</label>
+                                <select id="modal-professor" required>
+                                    <option value="">Selecione o professor</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="modal-sala">Sala *</label>
+                                <select id="modal-sala" required>
+                                    <option value="">Selecione a sala</option>
+                                </select>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    Salvar
+                                </button>
+                                <button type="button" class="btn btn-secondary modal-close">
+                                    <i class="fas fa-times"></i>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Impressão Section -->
+            <section id="impressao" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-print"></i> Impressão de Horários</h2>
+                    <p>Gere e imprima horários por turma ou professor</p>
+                </div>
+
+                <div class="impressao-options">
+                    <div class="option-card">
+                        <div class="option-header">
+                            <i class="fas fa-users"></i>
+                            <h3>Horário por Turma</h3>
+                        </div>
+                        <div class="option-content">
+                            <div class="form-group">
+                                <label for="print-turma">Selecionar Turma:</label>
+                                <select id="print-turma">
+                                    <option value="">Selecione uma turma</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" id="btn-print-turma">
+                                <i class="fas fa-print"></i>
+                                Gerar Horário da Turma
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="option-card">
+                        <div class="option-header">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <h3>Horário por Professor</h3>
+                        </div>
+                        <div class="option-content">
+                            <div class="form-group">
+                                <label for="print-professor">Selecionar Professor:</label>
+                                <select id="print-professor">
+                                    <option value="">Selecione um professor</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" id="btn-print-professor">
+                                <i class="fas fa-print"></i>
+                                Gerar Horário do Professor
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="print-preview" class="print-preview">
+                    <!-- Preview do horário será exibido aqui -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Alerts Container -->
+        <div id="alerts-container" class="alerts-container">
+            <!-- Alertas serão exibidos aqui -->
         </div>
     </div>
-    
-    <footer>
-        <div class="container">
-            <p>Sistema de Gestão de Horários - Curso de Ciências Econômicas UESC &copy; 2025</p>
-            <p>Desenvolvido com ❤️ para otimizar a gestão acadêmica</p>
-        </div>
-    </footer>
 
-    <script>
-        // ===== app.js =====
-        document.addEventListener('DOMContentLoaded', function() {
-            // Configurar navegação por abas
-            const tabLinks = document.querySelectorAll('nav a');
-            const tabContents = document.querySelectorAll('.tab-content');
-            
-            tabLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetTab = this.getAttribute('data-tab');
-                    
-                    // Atualizar aba ativa
-                    tabLinks.forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Mostrar conteúdo da aba
-                    tabContents.forEach(content => {
-                        content.classList.remove('active');
-                        if (content.id === targetTab) {
-                            content.classList.add('active');
-                        }
-                    });
-                });
-            });
+<script type="module" src="firebase.js"></script>
+<script src="script.js" defer></script>
 
-            // Simulação de dados
-            document.getElementById('professor-count').textContent = 'Professores: 12';
-            document.getElementById('disciplina-count').textContent = 'Disciplinas: 28';
-            document.getElementById('turma-count').textContent = 'Turmas: 9';
-            document.getElementById('sala-count').textContent = 'Salas: 15';
-            
-            // Simulação de funcionalidade completa
-            const loadingElements = document.querySelectorAll('.loading');
-            setTimeout(() => {
-                loadingElements.forEach(el => {
-                    el.innerHTML = '<p class="success">Esta seção está funcional no sistema completo. Para uma demonstração completa, por favor instale o sistema localmente com Firebase.</p>';
-                });
-            }, 2000);
-            
-            // Adicionar efeitos de hover nas cartas
-            const cards = document.querySelectorAll('.card');
-            cards.forEach(card => {
-                card.addEventListener('mouseenter', () => {
-                    card.style.transform = 'translateY(-5px)';
-                });
-                
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = 'translateY(0)';
-                });
-            });
-        });
-    </script>
 </body>
 </html>
+
