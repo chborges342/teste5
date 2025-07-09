@@ -69,10 +69,10 @@ const HORARIOS_CONFIG = {
                 { id: 4, inicio: '21:10', fim: '22:00' }
             ],
             'sabado': [
-                { id: 1, inicio: '07:30', fim: '08:20' },
-                { id: 2, inicio: '08:20', fim: '09:10' },
-                { id: 3, inicio: '09:10', fim: '10:00' },
-                { id: 4, inicio: '10:00', fim: '10:50' },
+                { id: 1, inicio: '', fim: '' },
+                { id: 2, inicio: '', fim: '' },
+                { id: 3, inicio: '', fim: '' },
+                { id: 4, inicio: '', fim: '' },
                 { id: 5, inicio: '10:50', fim: '11:40' },
                 { id: 6, inicio: '11:40', fim: '12:30' }
             ]
