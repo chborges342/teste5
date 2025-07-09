@@ -920,3 +920,13 @@ body {
     }
 }
 
+/* No seu arquivo CSS */
+.horario-slot.ocupado {
+    border: 2px solid #e0e0e0;
+    transition: background-color 0.2s;
+}
+.horario-info {
+    color: #333; /* Cor do texto escuro para contraste */
+    padding: 4px;
+}
+
